@@ -7,13 +7,22 @@ export default defineConfig({
       title: '[サイト名]',
       locales: { root: { label: '日本語', lang: 'ja' } },
       sidebar: [
-        { label: '走りの理論', autogenerate: { directory: 'theory' } },
-        { label: 'クルマの仕組み', autogenerate: { directory: 'mechanism' } },
-        { label: 'その他', items: [
-          { label: '用語辞典', slug: 'glossary' },
-          { label: '免責事項', slug: 'disclaimer' },
-        ]},
-      ],
+			{
+				label: '走りの理論',
+				items: [{ autogenerate: { directory: 'theory' } }],
+			},
+			{
+				label: 'クルマの仕組み',
+				items: [{ autogenerate: { directory: 'mechanism' } }],
+			},
+			{
+				label: 'その他',
+				items: [
+				{ label: '用語辞典', slug: 'glossary' },
+				{ label: '免責事項', slug: 'disclaimer' },
+				],
+			},
+		],
     }),
   ],
 });
