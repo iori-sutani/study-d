@@ -1,0 +1,40 @@
+name: タスク
+description: 機能追加・記事執筆などの作業用テンプレート
+title: ""
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: overview
+    attributes:
+      label: 概要
+      description: 何を・なぜやるか。要件定義書の該当節があれば書く
+      placeholder: 要件 §5.1 の○○に対応する
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 作業
+      description: チェックリスト形式で書く
+      placeholder: |
+        - [ ] 作業1
+        - [ ] 作業2
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件
+      description: 何をもって終わりとするか
+      placeholder: |
+        - npm run build が通る
+        - ○○ページで○○できる
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 備考
+      description: 依存関係や補足があれば書く
+    validations:
+      required: false
