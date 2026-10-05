@@ -1,0 +1,78 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const cars = await getCollection('cars');
+	return cars.map((car) => ({
+		params: { slug: car.id.replace(/\.mdx?$/, '') },
+		props: { car },
+	}));
+}
+
+const { car } = Astro.props;
+const { Content } = await render(car);
+const { data } = car;
+const title = `${data.maker} ${data.name}（${data.model}）`;
+
+const docs = await getCollection('docs');
+const titleOf = (slug: string) =>
+	docs.find((doc) => doc.id.replace(/\.mdx?$/, '') === slug)?.data.title ?? slug;
+---
+
+<StarlightPage frontmatter={{ title, description: data.blurb, prev: false, next: false }}>
+	<dl class="spec">
+		<div><dt>型式</dt><dd>{data.model}</dd></div>
+		<div><dt>エンジン</dt><dd>{data.engine}</dd></div>
+		<div>
+			<dt>駆動方式</dt>
+			<dd>
+				{data.drivetrain}（<a href="/mechanism/drivetrain/">解説へ</a>）
+			</dd>
+		</div>
+		<div><dt>車両重量</dt><dd>{data.weightKg} kg</dd></div>
+		<div><dt>最高出力</dt><dd>{data.powerPs} PS</dd></div>
+		<div><dt>販売期間</dt><dd>{data.years}</dd></div>
+	</dl>
+
+	<Content />
+
+	{
+		data.relatedTheory.length > 0 && (
+			<>
+				<h2>関連する解説記事</h2>
+				<ul>
+					{data.relatedTheory.map((slug) => (
+						<li>
+							<a href={`/${slug}/`}>{titleOf(slug)}</a>
+						</li>
+					))}
+				</ul>
+			</>
+		)
+	}
+</StarlightPage>
+
+<style>
+	.spec {
+		display: grid;
+		gap: 0.5rem 1.5rem;
+		grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+		margin-bottom: 2rem;
+		padding: 1rem 1.25rem;
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.5rem;
+	}
+	.spec div {
+		display: flex;
+		gap: 0.75rem;
+	}
+	.spec dt {
+		color: var(--sl-color-gray-3);
+		white-space: nowrap;
+	}
+	.spec dd {
+		margin: 0;
+		font-weight: 600;
+	}
+</style>
