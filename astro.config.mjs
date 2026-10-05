@@ -1,8 +1,10 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import preact from '@astrojs/preact';
 
 export default defineConfig({
   integrations: [
+    preact(),
     starlight({
       title: '[サイト名]',
       locales: { root: { label: '日本語', lang: 'ja' } },
