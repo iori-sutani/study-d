@@ -6,9 +6,8 @@ export default defineConfig({
   integrations: [
     preact(),
     starlight({
-      title: 'study D',
+      title: '[サイト名]',
       locales: { root: { label: '日本語', lang: 'ja' } },
-      customCss: ['./src/styles/custom.css'],
       components: {
         Footer: './src/components/SiteFooter.astro',
       },
