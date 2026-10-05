@@ -1,0 +1,19 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+---
+
+<Default />
+<p class="safety-notice">
+	公道での危険運転を推奨しません。本サイトの走行技術の解説は、サーキットなど安全が確保された環境を想定しています。
+</p>
+
+<style>
+	.safety-notice {
+		margin: 0 auto 1.5rem;
+		max-width: 48rem;
+		padding: 0 1rem;
+		font-size: var(--sl-text-xs);
+		color: var(--sl-color-gray-3);
+		text-align: center;
+	}
+</style>

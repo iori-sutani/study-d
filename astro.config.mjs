@@ -6,6 +6,9 @@ export default defineConfig({
     starlight({
       title: '[サイト名]',
       locales: { root: { label: '日本語', lang: 'ja' } },
+      components: {
+        Footer: './src/components/SiteFooter.astro',
+      },
       sidebar: [
 			{
 				label: '走りの理論',
