@@ -1,40 +1,41 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: study D
+description: 峠・ワインディング・サーキットで「クルマがどう動くのか」を原理から学ぶ学習サイト。
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  title: study D
+  tagline: 峠・ワインディング・サーキットで「クルマがどう動くのか」を原理から学ぶ
   image:
-    file: ../../assets/houston.webp
+    file: ../../assets/study-d-hero.svg
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: 走りの理論から始める
+      link: /theory/grip/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
+    - text: クルマの仕組み
+      link: /mechanism/drivetrain/
+      icon: right-arrow
+      variant: minimal
+    - text: 名車図鑑
+      link: /cars/ae86-sprinter-trueno/
+      icon: right-arrow
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+## 学びかた
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="走りの理論" icon="rocket">
+		グリップ・荷重移動・アンダー／オーバーなど、走行中に起きている現象を原理から。
+		[摩擦円から始める](/theory/grip/)
 	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
+	<Card title="クルマの仕組み" icon="setting">
+		駆動方式・エンジン・足回りなど、現象を生む部品側の仕組み。
+		[駆動方式の違い](/mechanism/drivetrain/)
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="名車図鑑" icon="star">
+		理論と仕組みをつなぐハブ。スペックと解説記事を往復しながら読む。
+		[AE86から見る](/cars/ae86-sprinter-trueno/)
 	</Card>
 </CardGrid>
