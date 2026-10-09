@@ -1,0 +1,177 @@
+name: Claude内容レビュー
+
+# PRオープン時にClaudeへ内容レビュー（伝わりやすさ観点）を依頼し、結果をコメント投稿する。
+# コードレビューではなく、ブログ・学習サイトとしての読みやすさを見る。
+# 要シークレット: ANTHROPIC_API_KEY（未設定時は案内コメントを投稿してスキップ）
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'astro.config.mjs'
+      - 'package.json'
+      - 'public/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: claude-content-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: 内容レビュー投稿
+    runs-on: ubuntu-latest
+    env:
+      MODEL: ${{ vars.CLAUDE_MODEL || 'claude-sonnet-4-5-20250929' }}
+      MARKER: '<!-- study-d-content-review -->'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: レビュー入力の組み立て
+        id: input
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          files=$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}" -- 'src' 'docs' 'astro.config.mjs' 'package.json' 'public' \
+            | grep -E '\.(md|mdx|astro|tsx)$' || true)
+          if [ -z "${files}" ]; then
+            echo "has_content=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "has_content=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "対象ファイル:"
+            printf '%s\n' "${files}"
+            echo ""
+            echo "===== 記事テンプレート (docs/article-template.md) ====="
+            cat docs/article-template.md
+          } > review_input.txt
+          # 差分本文を追加（合計で打ち切り）
+          for f in ${files}; do
+            {
+              echo ""
+              echo "===== ${f} ====="
+              git diff "${BASE_SHA}...${HEAD_SHA}" -- "${f}" | head -c 6000
+            } >> review_input.txt
+            if [ "$(wc -c < review_input.txt)" -gt 24000 ]; then
+              echo "" >> review_input.txt
+              echo "（以下略：入力上限のため省略）" >> review_input.txt
+              break
+            fi
+          done
+
+      - name: Claudeにレビュー依頼・コメント投稿
+        if: steps.input.outputs.has_content == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          post_comment() {
+            body_file="$1"
+            existing_id=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --paginate \
+              -q ".[] | select(.body | contains(\"${MARKER}\")) | .id" | head -n 1)
+            if [ -n "${existing_id}" ]; then
+              gh api --method PATCH "repos/${REPO}/issues/comments/${existing_id}" -F body=@"${body_file}" >/dev/null
+            else
+              gh api --method POST "repos/${REPO}/issues/${PR_NUMBER}/comments" -F body=@"${body_file}" >/dev/null
+            fi
+          }
+          if [ -z "${ANTHROPIC_API_KEY}" ]; then
+            {
+              echo "## Claude内容レビュー（自動）"
+              echo ""
+              echo "シークレット \`ANTHROPIC_API_KEY\` が未設定のため、レビューをスキップしました。"
+              echo "リポジトリの Settings > Secrets and variables > Actions で設定すると、次回pushから自動レビューが動作します。"
+              echo ""
+              echo "${MARKER}"
+            } > comment.md
+            post_comment comment.md
+            echo "ANTHROPIC_API_KEY未設定のためスキップ"
+            exit 0
+          fi
+          system_prompt=$(cat <<'EOF'
+          あなたは日本語の学習者向け解説サイトの編集者です。コードレビューはしません。
+          プルリクエストの差分に含まれる記事・ページの文章を読み、初見の読者に「内容が伝わりやすいか」をレビューしてください。
+
+          前提：このサイトには執筆ルール docs/article-template.md があります（入力に同封）。その遵守も確認してください。
+
+          観点：
+          1. 初見でつまずかないか：前提知識の明示、専門用語の説明・辞典リンク、推奨読順との整合
+          2. 構成：導入→本文→ポイント→出典の流れ、見出しの粒度、1文・1段落の長さ
+          3. 表現：曖昧な指示語、根拠のない断定、数値の扱い、ですます調の統一
+          4. 図解がある場合：本文だけで意味が通じるか、代替テキスト・色不依存の配慮
+          5. 安全・正確性：安全注意の配置、出典・参考文献の有無
+
+          出力形式（日本語、簡潔に）：
+          - 総評（3行以内）
+          - 良い点（箇条書き最大3つ）
+          - 指摘（重要度順。各：対象箇所／理由／具体的な改善案の例文つき）
+          - 記事テンプレートのチェック結果（合否つきの短いリスト）
+          - 指摘なしの場合はその旨を明記し、無理に粗探ししないこと
+          EOF
+          )
+          {
+            echo "## Claude内容レビュー（自動）"
+            echo ""
+            echo "> コードではなく「伝わりやすさ」の観点のレビューです。"
+            echo ""
+          } > comment.md
+          jq -n \
+            --arg model "${MODEL}" \
+            --arg system "${system_prompt}" \
+            --arg title "${PR_TITLE}" \
+            --arg body "${PR_BODY}" \
+            --rawfile review review_input.txt \
+            '{model: $model, max_tokens: 2000, system: $system,
+              messages: [{role: "user",
+                content: ("PRタイトル: " + $title + "\nPR本文: " + $body + "\n\n" + $review)}]}' \
+            > payload.json
+          curl -sS --fail-with-body --max-time 300 https://api.anthropic.com/v1/messages \
+            -H "x-api-key: ${ANTHROPIC_API_KEY}" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d @payload.json > response.json
+          jq -r '.content[] | select(.type == "text") | .text' response.json >> comment.md
+          {
+            echo ""
+            echo "${MARKER}"
+          } >> comment.md
+          post_comment comment.md
+
+      - name: 対象外の旨を投稿
+        if: steps.input.outputs.has_content != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Claude内容レビュー（自動）"
+            echo ""
+            echo "レビュー対象のコンテンツ変更（記事・ページ・図解）がなかったためスキップしました。"
+            echo ""
+            echo "${MARKER}"
+          } > comment.md
+          existing_id=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --paginate \
+            -q ".[] | select(.body | contains(\"${MARKER}\")) | .id" | head -n 1)
+          if [ -n "${existing_id}" ]; then
+            gh api --method PATCH "repos/${REPO}/issues/comments/${existing_id}" -F body=@comment.md >/dev/null
+          else
+            gh api --method POST "repos/${REPO}/issues/${PR_NUMBER}/comments" -F body=@comment.md >/dev/null
+          fi
