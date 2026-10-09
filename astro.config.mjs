@@ -3,6 +3,8 @@ import starlight from '@astrojs/starlight';
 import preact from '@astrojs/preact';
 
 export default defineConfig({
+  // 仮の公開URL。本番URL確定後に置き換える（#6）
+  site: 'https://study-d.workers.dev',
   integrations: [
     preact(),
     starlight({
@@ -10,6 +12,7 @@ export default defineConfig({
       locales: { root: { label: '日本語', lang: 'ja' } },
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/iori-sutani/study-d' }],
       components: {
+        Head: './src/components/Head.astro',
         Footer: './src/components/SiteFooter.astro',
       },
       sidebar: [
