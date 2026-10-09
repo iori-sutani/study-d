@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [
     preact(),
     starlight({
-      title: 'studyd',
+      title: 'StudyD',
       locales: { root: { label: '日本語', lang: 'ja' } },
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/iori-sutani/study-d' }],
       components: {
