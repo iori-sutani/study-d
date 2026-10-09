@@ -1,11 +1,36 @@
 ---
-title: Example Reference
-description: A reference page in my new Starlight docs site.
+title: 駆動方式の違い
+description: FF・FR・MR・4WDの仕組みと、挙動の違いを学ぶ
+sidebar:
+  order: 1
 ---
 
-Reference pages are ideal for outlining how things work in terse and clear terms.
-Less concerned with telling a story or addressing a specific use case, they should give a comprehensive outline of what you're documenting.
+エンジンの力をどのタイヤに伝えるかで、クルマの性格は大きく変わります。[FF](/glossary/)・[FR](/glossary/)・[MR](/glossary/)・[4WD](/glossary/)の4方式の仕組みと、走りの違いを整理します。
 
-## Further reading
+前提：[①タイヤのグリップと摩擦円](/theory/grip/)を先に読むことをおすすめします。
 
-- Read [about reference](https://diataxis.fr/reference/) in the Diátaxis framework
+## 4つの駆動方式
+
+- **FF（フロントエンジン・フロントドライブ）**：前輪で駆動も旋回も担う。前輪の負担が大きく[アンダーステア](/glossary/)傾向。室内が広く取れるため乗用車に多い。[シビック EG6](/cars/eg6-civic/)が代表例。
+- **FR（フロントエンジン・リヤドライブ）**：前輪は旋回、後輪は駆動と役割分担できる。アクセルで後輪を滑らせる[オーバーステア](/glossary/)も誘発しやすく、操作の自由度が高い。[スプリンタートレノ AE86](/cars/ae86-sprinter-trueno/)・[シルビア S13](/cars/s13-silvia/)が代表例。
+- **MR（ミッドシップエンジン・リヤドライブ）**：エンジンを車体中央に置き、前後の重量配分に優れる。旋回性能が高い反面、限界付近の挙動が急変しやすい。
+- **4WD（四輪駆動）**：4輪すべてに駆動力を配分し、[トラクション](/glossary/)に優れる。配分制御（センターデフや電子制御）で性格づけが変わる。[スカイラインGT-R R32](/cars/bnr32-skyline-gt-r/)が代表例。
+
+## なぜ挙動が変わるのか
+
+タイヤのグリップには上限（[摩擦円](/glossary/)）があり、駆動力と旋回力はその予算を分け合います。前輪に駆動と旋回を両方担わせるFFは前輪の予算が逼迫しやすく、役割分担できるFR・4WDは使い方の幅が広がります。詳しくは[③アンダー／オーバー](/theory/understeer-oversteer/)も参照してください。
+
+## LSDと駆動力配分の役割
+
+左右輪の回転差を抑えて駆動力を逃がさない装置が[LSD](/glossary/)です。4WDでは前後への配分制御と合わせて、曲がりやすさと安定性を両立させるために使われます。方式の名前に加えて「どう配分しているか」まで見ると、クルマの理解が一段深まります。
+
+## ポイント
+
+- FFは前輪の負担が大きくアンダー傾向、FRは操作の自由度が高い
+- 違いの根底には摩擦円の予算の分け合いがある
+- 次は走りを支えるもう一つの要素「[⑤NAとターボ](/mechanism/na-turbo/)」を学ぶ。[名車図鑑](/cars/ae86-sprinter-trueno/)の6台と見比べるのもおすすめ
+
+## 出典・参考文献
+
+- 本記事の内容は自動車工学の一般的な定説に基づく
+- [タイヤの基礎知識 - 株式会社ブリヂストン](https://tire.bridgestone.co.jp/about/knowledge/)（閲覧日：2026-10-09）
