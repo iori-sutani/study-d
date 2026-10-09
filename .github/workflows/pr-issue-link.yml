@@ -1,0 +1,34 @@
+name: Issue連携チェック
+
+# Issue起点の運用を徹底する：Ready for reviewのPR本文に「Closes #N」等の
+# 連携キーワードがあることを確認する（マージでIssueが自動クローズされる）。
+# Draftは対象外（Ready for review時に再評価される）。
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, ready_for_review, synchronize]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  link:
+    name: Issueリンク確認
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR本文の確認
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          set -euo pipefail
+          if [ "${IS_DRAFT}" = "true" ]; then
+            echo "Draftのためスキップ（Ready for review時に再評価）"
+            exit 0
+          fi
+          if printf '%s' "${PR_BODY}" | grep -qiE '(close[sd]?|fixe?[sd]?|resolve[sd]?)[[:space:]]*#[0-9]+'; then
+            echo "Issue連携キーワードを確認しました"
+            exit 0
+          fi
+          echo "::error::PR本文にIssue連携キーワード（例: Closes #123）がありません。先に対応Issueを立て、本文に記載してください。マージでIssueが自動クローズされます。"
+          exit 1
