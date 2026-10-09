@@ -31,9 +31,8 @@ UIに目に見える変化がある実装をしたら、報告前に必ず画面
 - 成果物は `/opt/cursor/artifacts/` に分かりやすいsnake_case名で保存し、報告に画像・動画を添える
 - 目に見える変化がない変更の場合は、その旨を報告に一言添える
 
-## Issue→PR→レビューの運用
+## Issue→PRの運用
 
-- 作業前にIssueを立てる。実装PRの本文には `Closes #<番号>` を含める（マージでIssueが自動クローズされる）
+- 作業前にIssueを立てる。実装PRの本文には `Closes #<番号>` を含める（マージでIssueが自動クローズされる。Ready PRにキーワードがないとCIが落ちる）
 - PR作成時は `.github/PULL_REQUEST_TEMPLATE.md` に従う（関連Issue・確認事項）
-- PRオープンでClaude内容レビュー（コードではなく「伝わりやすさ」観点）が自動投稿される。指摘に対応してからマージする
-- 自動レビューにはリポジトリシークレット `ANTHROPIC_API_KEY` が必要（未設定時は案内コメントのみ投稿）。モデルはActions変数 `CLAUDE_MODEL` で変更可
+- 注：Claude自動レビューはAPI課金のため不採用とした。必要になれば git履歴の `.github/workflows/claude-content-review.yml` を復活させ、`ANTHROPIC_API_KEY` 設定で有効化できる
