@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [
     preact(),
     starlight({
-      title: '[サイト名]',
+      title: 'StudyD',
       locales: { root: { label: '日本語', lang: 'ja' } },
       components: {
         Footer: './src/components/SiteFooter.astro',
